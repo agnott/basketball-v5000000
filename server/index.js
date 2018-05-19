@@ -167,27 +167,47 @@ class Player {
   }
 }
 
-const PlayersProxy = {
+const QueryProxy = {
   create(obj) {
     return new Proxy(obj, this.handlers());
   },
+  difference(target) {
+    return (other) => {
+      const fromTarget = target.filter(v => !other.includes(v));
+      const fromOther = other.filter(v => !target.includes(v));
+      return new Proxy(fromTarget.concat(fromOther), this.handlers());
+    };
+  },
   intersection(target) {
-    return (other, cmp) => {
-      return new Proxy(target.filter(v => !other.includes(v)), this.handlers());
+    return (other) => {
+      return new Proxy(target.filter(v => other.includes(v)), this.handlers());
     };
   },
   union(target) {
-    return (other, cmp) => {
-      return new Proxy(target.filter(v => other.includes(v)), this.handlers());
+    return (other) => {
+      const targetSet = new Set(target);
+      return new Proxy(other.filter(v => targetSet.has(v)), this.handlers());
     };
   },
   query(target) {
     return (acc, cmp) => new Proxy(target.filter(v => cmp(acc(v))), this.handlers());
   },
   sort(target) {
-    return (fn) => new Proxy(target.slice(0).sort(fn), this.handlers());
+    return (...args) => {
+      const compare = (...args) => {
+        switch (args.length) {
+          case 1:
+            return (a, b) => args[0](a, b);
+          default:
+            return (a, b) => args[0](a, b) || compare(...(args.slice(1)))(a, b);
+        }
+      };
+      return new Proxy(target.slice(0).sort(compare(...args)), this.handlers());
+    };
   },
   get(target, property) {
+    if (property === 'intersection') return this.intersection(target);
+    if (property === 'difference') return this.difference(target);
     if (property === 'union') return this.union(target);
     if (property === 'query') return this.query(target);
     if (property === 'sort') return this.sort(target);
@@ -203,27 +223,22 @@ const PlayersProxy = {
 class Team {
   constructor() {
     this.internal = { players: [] };
-    this.players = PlayersProxy.create(this.internal.players);
+    this.players = QueryProxy.create(this.internal.players);
   }
 }
 
 const t = new Team();
 
 for (let i = 0; i < 20; i++) t.players.push(new Player());
-//
-// const overalls = t.players.map(p => p.attributes.overall());
-// console.log(overalls) ;
-// const boundedOveralls = t.players
-//   .query(p => p.attributes.overall(), comps.not(comps.between(80, 85)))
-//   .map(p => p.attributes.overall());
-// console.log(boundedOveralls);
 
-const names = t.players.map(p => p.name.full);
-console.log(names);
-const chosen = t.players.query(p => p.name.full, comps.matches(/TOM/));
-const others = t.players.query(p => p.name.full, comps.matches(/SMITH/));
-console.log('---');
-console.log(chosen.union(others).map(p => p.name.full));
+const ordered = t.players.sort((p1, p2) => p2.attributes.overall() - p1.attributes.overall());
+ordered.forEach((p) => {
+  console.log(`${p.name.full}: ${p.attributes.overall()}`);
+});
+const avg = t.players.map(p => p.attributes.overall()).reduce(reducers.sum) / t.players.length;
+console.log('-----');
+console.log(avg)
+
 
 // let p, o, v, avg = 0, count = 400;
 // const outputs = {};
