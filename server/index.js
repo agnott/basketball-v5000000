@@ -1,6 +1,7 @@
 const seedrandom = require('seedrandom');
 const QueryProxy = require('./QueryProxy');
 const Random = require('./Random');
+const fs = require('fs');
 // seedrandom('test', { global: true });
 
 const reducers = {
@@ -112,6 +113,10 @@ class Personality {
 const CONFIG = {
   HEIGHT: { MIN: 69, MAX: 88, MODE: 81 },
   WEIGHT: { MIN: 150, MAX: 300, MODE: 240 },
+  NAMES: {
+    FIRST: fs.readFileSync('./data/first-names.txt').toString().split('\n'),
+    LAST: fs.readFileSync('./data/last-names.txt').toString().split('\n')
+  }
 }
 
 class Height {
@@ -163,7 +168,7 @@ class Position {
   getPositions(attributes, height, weight) {
     const positions = [
       {
-        name: 'pg',
+        name: 'PG',
         formula: [
           [3, 'speed'],
           [3, 'pass'],
@@ -171,10 +176,10 @@ class Position {
           [1, 'steal'],
           [1, 'mid'],
         ],
-        height: -1,
+        height: -2,
       },
       {
-        name: 'sg',
+        name: 'SG',
         formula: [
           [2, 'speed'],
           [2, 'pass'],
@@ -184,42 +189,41 @@ class Position {
           [1, 'dunk'],
           [1, 'steal'],
         ],
-        height: -0.5,
+        height: -1,
       },
       {
-        name: 'sf',
+        name: 'SF',
         formula: [
           [1.5, 'speed'],
           [1.5, 'rebound'],
-          [1.3, 'three'],
-          [1, 'mid'],
-          [2.3, 'short'],
+          [1, 'three'],
+          [2, 'mid'],
+          [2, 'short'],
           [2, 'dunk'],
           [1, 'pass'],
         ],
         height: 0,
       },
       {
-        name: 'pf',
+        name: 'PF',
         formula: [
           [1, 'speed'],
           [3, 'rebound'],
           [2, 'block'],
           [2, 'short'],
-          [2, 'dunk'],
-          [0.5, 'mid'],
+          [2.5, 'dunk'],
         ],
-        height: 0.5,
+        height: 1,
       },
       {
-        name: 'c',
+        name: 'C',
         formula: [
           [4, 'rebound'],
           [3, 'block'],
           [2, 'dunk'],
           [1, 'short'],
         ],
-        height: 1,
+        height: 2,
       },
     ];
 
@@ -242,8 +246,8 @@ class Position {
 
 class Name {
   constructor() {
-    this.first = Random.choice(['TIM', 'JIM', 'MARK', 'MIKE', 'TOM', 'JOHN']);
-    this.last = Random.choice(['SMITH', 'JONES', 'JAMES', 'OCEAN', 'PITT', 'JACKSON']);
+    this.first = Random.choice(CONFIG.NAMES.FIRST);
+    this.last = Random.choice(CONFIG.NAMES.LAST);
   }
   get full() {
     return `${this.first} ${this.last}`;
@@ -275,20 +279,15 @@ class Team {
 
 const t = new Team();
 
-for (let i = 0; i < 450; i++) t.players.push(new Player());
-t.players.each(p => console.log(p.position.primary))
+for (let i = 0; i < 100; i++) t.players.push(new Player());
 
-const counts = new Map();
-t.players.each((p) => {
-  const p1 = p.position.primary;
-  // const pos = p.position.primary + '-' + p.position.secondary;
-  // if (!counts.has(pos)) counts.set(pos, 0);
-  if (!counts.has(p1)) counts.set(p1, 0);
-  // counts.set(pos, counts.get(pos) + 1);
-  counts.set(p1, counts.get(p1) + 1);
+const positions = new Map();
+t.players.each(p => {
+  const pos = p.position.primary;
+  if (!positions.has(pos)) positions.set(pos, 0);
+  positions.set(pos, positions.get(pos) + 1);
 });
-console.log(counts);
-
+console.log(positions);
 
 // let p, o, v, avg = 0, count = 400;
 // const outputs = {};
