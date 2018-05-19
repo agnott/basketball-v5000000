@@ -38,6 +38,9 @@ const QueryProxy = {
       return new Proxy(target.slice(0).sort(compare(...args)), this.handlers());
     };
   },
+  each(target) {
+    return (...args) => target.forEach(...args);
+  },
   random(target) {
     return () => Random.choice(target);
   },
@@ -48,6 +51,7 @@ const QueryProxy = {
     if (property === 'union') return this.union(target);
     if (property === 'query') return this.query(target);
     if (property === 'sort') return this.sort(target);
+    if (property === 'each') return this.each(target);
     return target[property];
   },
   handlers() {
