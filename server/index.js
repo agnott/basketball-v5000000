@@ -181,7 +181,7 @@ class Position {
       {
         name: 'SG',
         formula: [
-          [2, 'speed'],
+          [2.25, 'speed'],
           [2, 'pass'],
           [2, 'three'],
           [1.5, 'mid'],
@@ -196,8 +196,8 @@ class Position {
         formula: [
           [1.5, 'speed'],
           [1.5, 'rebound'],
-          [1, 'three'],
-          [2, 'mid'],
+          [1.25, 'three'],
+          [1.75, 'mid'],
           [2, 'short'],
           [2, 'dunk'],
           [1, 'pass'],
@@ -210,7 +210,7 @@ class Position {
           [1, 'speed'],
           [3, 'rebound'],
           [2, 'block'],
-          [2, 'short'],
+          [2.25, 'short'],
           [2.5, 'dunk'],
         ],
         height: 1,
