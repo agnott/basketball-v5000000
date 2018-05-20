@@ -2,7 +2,9 @@ const seedrandom = require('seedrandom');
 const QueryProxy = require('./QueryProxy');
 const Random = require('./Random');
 const fs = require('fs');
-// seedrandom('test', { global: true });
+const seed = Date.now();
+console.log(seed);
+// seedrandom(321, { global: true });
 
 const reducers = {
   sum(acc, val) {
@@ -162,10 +164,6 @@ class Weight {
 */
 class Position {
   constructor(attributes, height, weight) {
-    this.getPositions(attributes, height, weight);
-  }
-
-  getPositions(attributes, height, weight) {
     const positions = [
       {
         name: 'PG',
@@ -176,33 +174,33 @@ class Position {
           [1, 'steal'],
           [1, 'mid'],
         ],
-        height: -2,
+        height: 73,
       },
       {
         name: 'SG',
         formula: [
-          [2.25, 'speed'],
+          [2, 'speed'],
           [2, 'pass'],
           [2, 'three'],
-          [1.5, 'mid'],
+          [1, 'mid'],
           [1, 'short'],
           [1, 'dunk'],
           [1, 'steal'],
         ],
-        height: -1,
+        height: 76,
       },
       {
         name: 'SF',
         formula: [
-          [1.5, 'speed'],
-          [1.5, 'rebound'],
-          [1.25, 'three'],
-          [1.75, 'mid'],
+          [1, 'speed'],
+          [2, 'rebound'],
+          [1, 'three'],
+          [1, 'mid'],
           [2, 'short'],
           [2, 'dunk'],
           [1, 'pass'],
         ],
-        height: 0,
+        height: 79,
       },
       {
         name: 'PF',
@@ -210,10 +208,10 @@ class Position {
           [1, 'speed'],
           [3, 'rebound'],
           [2, 'block'],
-          [2.25, 'short'],
-          [2.5, 'dunk'],
+          [2, 'short'],
+          [2, 'dunk'],
         ],
-        height: 1,
+        height: 82,
       },
       {
         name: 'C',
@@ -223,21 +221,24 @@ class Position {
           [2, 'dunk'],
           [1, 'short'],
         ],
-        height: 2,
+        height: 85,
       },
     ];
 
     // Calculates the viability at each position
     this.rankings = positions
-      .map((pos) => {
-        let rating = pos.formula.map((form) => form[0] * attributes[form[1]]).reduce(reducers.sum);
-        rating += (height.scaled * 100 - 55) * pos.height;
-        return {
-          position: pos.name,
-          rating,
-        };
-      })
-      .sort((a, b) => b.rating - a.rating);
+    .map((pos) => {
+      let rating = pos.formula.map((form) => form[0] * attributes[form[1]]).reduce(reducers.sum);
+      const diff = Math.abs(pos.height - height.height);
+      const calculated = (-15 * diff + 100) ** 3 / 20 ** 3;
+      console.log(height.height, rating, diff, calculated, rating + calculated);
+      rating += calculated || 0;
+      return {
+        position: pos.name,
+        rating,
+      };
+    })
+    .sort((a, b) => b.rating - a.rating);
 
     this.primary = this.rankings[0].position;
     this.secondary = this.rankings[1].position;
@@ -279,15 +280,15 @@ class Team {
 
 const t = new Team();
 
-for (let i = 0; i < 100; i++) t.players.push(new Player());
+for (let i = 0; i < 10; i++) t.players.push(new Player());
 
-const positions = new Map();
-t.players.each(p => {
-  const pos = p.position.primary;
-  if (!positions.has(pos)) positions.set(pos, 0);
-  positions.set(pos, positions.get(pos) + 1);
-});
-console.log(positions);
+console.log('PG', t.players.query(p => p.position.primary, comps.eq('PG')).length);
+console.log('SG', t.players.query(p => p.position.primary, comps.eq('SG')).length);
+console.log('SF', t.players.query(p => p.position.primary, comps.eq('SF')).length);
+console.log('PF', t.players.query(p => p.position.primary, comps.eq('PF')).length);
+console.log('C ', t.players.query(p => p.position.primary, comps.eq('C')).length);
+console.log(t.players);
+
 
 // let p, o, v, avg = 0, count = 400;
 // const outputs = {};
