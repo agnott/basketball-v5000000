@@ -19,6 +19,8 @@
   "homepage": "https://github.com/agnott/sports-game-soccer#readme",
   "dependencies": {
     "express": "^4.16.3",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
     "seedrandom": "^2.4.3",
     "socket.io": "^2.1.0",
     "socket.io-client": "^2.1.0",
@@ -28,6 +30,7 @@
     "@babel/core": "^7.0.0-beta.46",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.46",
     "@babel/preset-env": "^7.0.0-beta.46",
+    "@babel/preset-react": "^7.0.0-beta.47",
     "babel-loader": "^8.0.0-beta.2",
     "copy-webpack-plugin": "^4.5.1",
     "nodemon": "^1.17.3",

@@ -1,14 +1,7 @@
+import Axios from 'axios';
+
 console.log('here');
 
-import seedrandom from 'seedrandom';
-seedrandom('test', { global: true });
-
-class Random() {
-
-}
-
-class League {
-  constructor() {
-
-  }
-}
+Axios.get('/api/freeagents')
+.then((res) => console.log(res))
+.catch((err) => console.log(err));

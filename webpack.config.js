@@ -28,14 +28,20 @@ module.exports = (env) => {
           test: /\.js$/,
           loader: 'babel-loader',
           query: {
-            presets: ['@babel/preset-env'],
+            presets: ['@babel/preset-env', '@babel/preset-react'],
             plugins: [require('@babel/plugin-proposal-object-rest-spread')]
           }
         }
       ]
     },
     devServer: {
-      contentBase: 'build'
+      contentBase: 'build',
+      proxy: {
+      '/api/**': {
+        target: `http://localhost:3000`,
+        secure: false
+      }
+    }
     },
     watchOptions: {
       poll: 500
