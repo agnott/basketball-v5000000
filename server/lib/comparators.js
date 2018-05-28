@@ -17,6 +17,12 @@ module.exports = {
   between(a, b) {
     return x => a < x && b > x;
   },
+  betweenLeftInclusive(a, b) {
+    return x => a <= x && b > x;
+  },
+  betweenRightInclusive(a, b) {
+    return x => a < x && b >= x;
+  },
   betweenInclusive(a, b) {
     return x => a <= x && b >= x;
   },
