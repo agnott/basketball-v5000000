@@ -303,6 +303,7 @@ class Player {
     this.position = new Position(this);
     this.retired = false;
     this.contract = null;
+    this.offers = [];
   }
 
   progress(toAge) {
@@ -325,7 +326,23 @@ class Player {
   }
 
   offer(contract) {
-    
+    this.offers.push(contract);
+  }
+
+  chooseOffer() {
+    console.log(this.attributes.overall);
+    const ranks = this.offers.map((o) => {
+      const { greediness } = this.personality.object;
+      const shiftedGreed = (greediness - 50) / 50;
+      const { years, payments, noTrade } = o;
+      const totalAmount = payments.reduce(reducers.sum);
+      const yearlyAmount = totalAmount / years;
+      const minYearlyAmount = Math.max(0.5, 5 * shiftedGreed + 25 * ((this.attributes.overall - 50) ** 2 / 50 ** 2));
+
+      if (yearlyAmount < minYearlyAmount) return 0;
+      return (totalAmount / 10) + (noTrade ? 1 : 0) + years;
+    });
+    console.log(ranks);
   }
 
   toPlainObject() {

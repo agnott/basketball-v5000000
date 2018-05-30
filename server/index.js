@@ -3,12 +3,13 @@ const QueryProxy = require('./proxies/QueryProxy');
 const PlayerListProxy = require('./proxies/PlayerListProxy');
 const Random = require('./Random');
 const Player = require('./Player');
+const Contract = require('./Contract');
 const Team = require('./Team');
 const comps = require('./lib/comparators');
 const reducers = require('./lib/reducers');
 const seed = Date.now();
 console.log(seed);
-// seedrandom(1527123079171, { global: true });
+seedrandom(1527123079171, { global: true });
 
 const inchesToFeetInches = (inputInches) => {
   const feet = Math.floor(inputInches / 12);
@@ -108,6 +109,13 @@ console.log('Old: ', fa.players.query(p => p.age.age, comps.gteq(35)).map(p => p
 //   p.progress();
 // }
 // console.log(p.age.age, p.age.scaled, p.attributes.overall);
+
+const p = new Player();
+
+p.offer(new Contract({ years: 3, payments: [12, 14, 15] }));
+p.offer(new Contract({ years: 2, payments: [20, 22], noTrade: true }));
+
+p.chooseOffer();
 
 const app = require('express')();
 
