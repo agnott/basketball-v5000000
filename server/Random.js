@@ -40,6 +40,18 @@ class Random {
   choice(iter) {
     return iter[this.int(0, iter.length)];
   }
+
+  choiceWeighted(iter, weights) {
+    const total = weights.reduce((acc, val) => acc + val, 0);
+    let rand  = this.float(0, total);
+
+    for (let i = 0; i < iter.length; i++) {
+      if (rand < weights[i]) return iter[i];
+      rand -= weights[i];
+    }
+
+    return null;
+  }
 }
 
 module.exports = new Random();
