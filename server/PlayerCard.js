@@ -14,8 +14,8 @@ const CONFIG = {
 };
 
 class SetArray {
-  constructor(base) {
-    this.array = base;
+  constructor(base = []) {
+    this.array = [...base];
     this.set = new Set(this.array);
   }
 
@@ -38,10 +38,10 @@ class SetArray {
   }
 }
 
-
 class PlayerCard {
   constructor(config = {}) {
-    this.rarity = Random.choiceWeighted(CONFIG.RARITY.LABELS, CONFIG.RARITY.WEIGHTS);
+    this.rarity = (CONFIG.RARITY.LABELS.includes(config.rarity)) ?
+      config.rarity : Random.choiceWeighted(CONFIG.RARITY.LABELS, CONFIG.RARITY.WEIGHTS);
     this.name = {
       first: Random.choice(CONFIG.NAMES.FIRST),
       last: Random.choice(CONFIG.NAMES.LAST),
@@ -64,7 +64,7 @@ class PlayerCard {
     const availablePoints = base + variance + CONFIG.RARITY.LABELS.indexOf(this.rarity) * 6;
 
     for (let i = 0; i < availablePoints; i++) {
-      attribute = Random.choice(availableAttributes.values());
+      attribute = Random.choiceWeighted(availableAttributes.values(), availableAttributes.values().map(v => attributes[v] ** 0.5));
       if (++attributes[attribute] >= 10) availableAttributes.delete(attribute);
     }
 
@@ -73,24 +73,23 @@ class PlayerCard {
 
   generatePositions() {
     const attrs = this.attributes;
+    const scaledSpeed = attrs['speed'] - 2.75;
     const positionRankings = [{
       position: 'PG',
-      ranking: 3 * attrs['pass'] + 2 * attrs['speed'] + attrs['steal'],
+      ranking: 5 * attrs['pass'] + 4 * attrs['steal'] + 3 * attrs['three'] + 2 * attrs['mid'] + attrs['short'] + 1.25 * scaledSpeed,
     }, {
       position: 'SG',
-      ranking: 3 * attrs['three'] + 2 * attrs['mid'] + attrs['speed'],
+      ranking: 5 * attrs['three'] + 4 * attrs['mid'] + 3 * attrs['steal'] + 2 * attrs['pass'] + attrs['short'] + 1 * scaledSpeed,
     }, {
       position: 'SF',
-      ranking: 3 * attrs['mid'] + 2 * attrs['short'] + attrs['dunk'],
+      ranking: 5 * attrs['mid'] + 4 * attrs['short'] + 3 * attrs['dunk'] + 2 * attrs['three'] + attrs['pass'] + 0 * scaledSpeed,
     }, {
       position: 'PF',
-      ranking: 3 * attrs['dunk'] + 2 * attrs['rebound'] + attrs['short'],
+      ranking: 5 * attrs['short'] + 4 * attrs['dunk'] + 3 * attrs['rebound'] + 2 * attrs['block'] + attrs['mid'] - 0.5 * scaledSpeed,
     }, {
       position: 'C',
-      ranking: 3 * attrs['rebound'] + 2 * attrs['block'] + attrs['dunk'],
+      ranking: 5 * attrs['rebound'] + 4 * attrs['block'] + 3 * attrs['dunk'] + 2 * attrs['short'] + attrs['mid'] - 3 * scaledSpeed,
     }].sort((a, b) => b.ranking - a.ranking);
-
-    console.log(positionRankings);
 
     return {
       primary: positionRankings[0].position,
