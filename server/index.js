@@ -28,7 +28,7 @@ console.log('PF  :', cards.query(c => c.position.primary, eq('PF')).length);
 console.log('C   :', cards.query(c => c.position.primary, eq('C')).length);
 
 app.get('/api/players/new', (req, res) => {
-  res.send(new PlayerCard({ rarity: 'legendary' }));
+  res.send(new PlayerCard());
 });
 
 app.listen(3000, () => console.log('Running'));

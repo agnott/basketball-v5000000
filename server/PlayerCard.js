@@ -4,7 +4,7 @@ const Random = require('./Random');
 const CONFIG = {
   RARITY: {
     LABELS: ['common', 'uncommon', 'rare', 'epic', 'legendary'],
-    WEIGHTS: [300, 200, 100, 50, 25]
+    WEIGHTS: [300, 200, 100, 50, 20]
   },
   NAMES: {
     FIRST: fs.readFileSync('./data/first-names.txt').toString().split('\n'),
@@ -49,6 +49,7 @@ class PlayerCard {
 
     this.attributes = this.generateAttributes();
     this.position = this.generatePositions();
+    this.svg = this.generateSvg();
   }
 
   generateAttributes() {
@@ -73,28 +74,61 @@ class PlayerCard {
 
   generatePositions() {
     const attrs = this.attributes;
-    const scaledSpeed = attrs['speed'] - 2.75;
+    const scaledSpeed = attrs['speed'] - 2.9;
     const positionRankings = [{
       position: 'PG',
-      ranking: 5 * attrs['pass'] + 4 * attrs['steal'] + 3 * attrs['three'] + 2 * attrs['mid'] + attrs['short'] + 1.25 * scaledSpeed,
+      ranking: 5 * attrs['pass']
+        + 4 * attrs['steal']
+        + 3 * attrs['three']
+        + 2 * attrs['mid']
+        + attrs['short']
+        + 4 * scaledSpeed,
     }, {
       position: 'SG',
-      ranking: 5 * attrs['three'] + 4 * attrs['mid'] + 3 * attrs['steal'] + 2 * attrs['pass'] + attrs['short'] + 1 * scaledSpeed,
+      ranking: 5.75 * attrs['three']
+        + 4 * attrs['mid']
+        + 3 * attrs['steal']
+        + 2 * attrs['pass']
+        + attrs['short']
+        + 2 * scaledSpeed,
     }, {
       position: 'SF',
-      ranking: 5 * attrs['mid'] + 4 * attrs['short'] + 3 * attrs['dunk'] + 2 * attrs['three'] + attrs['pass'] + 0 * scaledSpeed,
+      ranking: 6 * attrs['mid']
+        + 4 * attrs['short']
+        + 3 * attrs['dunk']
+        + 2 * attrs['three']
+        + attrs['pass']
+        + 1 * scaledSpeed,
     }, {
       position: 'PF',
-      ranking: 5 * attrs['short'] + 4 * attrs['dunk'] + 3 * attrs['rebound'] + 2 * attrs['block'] + attrs['mid'] - 0.5 * scaledSpeed,
+      ranking: 5.75 * attrs['short']
+        + 4 * attrs['dunk']
+        + 3 * attrs['rebound']
+        + 2 * attrs['block']
+        + attrs['mid']
+        - 2 * scaledSpeed,
     }, {
       position: 'C',
-      ranking: 5 * attrs['rebound'] + 4 * attrs['block'] + 3 * attrs['dunk'] + 2 * attrs['short'] + attrs['mid'] - 3 * scaledSpeed,
+      ranking: 5 * attrs['rebound']
+        + 4 * attrs['block']
+        + 3 * attrs['dunk']
+        + 2 * attrs['short']
+        + attrs['mid']
+        - 4 * scaledSpeed,
     }].sort((a, b) => b.ranking - a.ranking);
 
     return {
       primary: positionRankings[0].position,
       secondary: positionRankings[1].position,
     };
+  }
+
+  generateSvg() {
+    return `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <circle cx="5" cy="10" r="6" fill="red" />
+      </svg>
+    `;
   }
 }
 
