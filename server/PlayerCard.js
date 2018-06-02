@@ -1,5 +1,6 @@
 const fs = require('fs');
 const Random = require('./Random');
+const SVG = require('./lib/svg/svg');
 
 const CONFIG = {
   RARITY: {
@@ -124,11 +125,14 @@ class PlayerCard {
   }
 
   generateSvg() {
-    return `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-        <circle cx="5" cy="10" r="6" fill="red" />
-      </svg>
-    `;
+    const svg = new SVG(1000, 1000);
+
+    const group = SVG.Group(null, { thingProp: 575, });
+    group.add(SVG.Circle(10, 10, 4));
+
+    svg.add(group);
+
+    return svg.render();
   }
 }
 
