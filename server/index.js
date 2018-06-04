@@ -10,7 +10,7 @@ const seed = Date.now();
 app = require('express')();
 
 const cards = QueryProxy.create([]);
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 0; i++) {
   cards.push(new PlayerCard());
 }
 

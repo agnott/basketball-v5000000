@@ -39,6 +39,205 @@ class SetArray {
   }
 }
 
+const getEdges = (config) => ({
+  left: config.svg.width / 2 - config.head.width / 2,
+  right: config.svg.width/ 2 + config.head.width / 2,
+  top: config.svg.height / 2 - config.head.height / 2,
+  bottom: config.svg.height / 2 + config.head.height / 2,
+});
+
+const getMidpoints = (config) => ({
+  x: config.svg.width / 2,
+  y: config.svg.height / 2,
+});
+
+const generateHeadShape = (config, themes) => {
+  const group = SVG.Group();
+
+  const edges = getEdges(config);
+  const midpoints = getMidpoints(config);;
+
+  // Head top
+  group.add(
+    SVG.Path()
+      .move(edges.left, midpoints.y)
+      .line(edges.left, midpoints.y - config.head.height / 5)
+      .quadratic(edges.left, edges.top, midpoints.x, edges.top)
+      .quadratic(edges.right, edges.top, edges.right, midpoints.y - config.head.height / 5)
+      .line(edges.right, midpoints.y)
+      .theme(themes.outlined)
+      .fill(config.colors.skin)
+  );
+
+  // Head bottom
+  group.add(
+    SVG.Path()
+      .move(edges.left, midpoints.y)
+      .line(edges.left, midpoints.y + config.head.height / 15)
+      .quadratic(edges.left, edges.bottom, midpoints.x, edges.bottom)
+      .quadratic(edges.right, edges.bottom, edges.right, midpoints.y + config.head.height / 15)
+      .line(edges.right, midpoints.y)
+      .theme(themes.outlined)
+      .fill(config.colors.skin)
+  );
+
+  // Mouth
+  group.add(
+    SVG.Path()
+      .move(midpoints.x - config.mouth.width / 2, midpoints.y + config.head.height / 4)
+      .quadratic(
+        midpoints.x,
+        midpoints.y + config.head.height / 4 + config.mouth.curvature,
+        midpoints.x + config.mouth.width / 2,
+        midpoints.y + config.head.height / 4
+      )
+      .theme(themes.outlined)
+  );
+
+  return group;
+}
+
+const generateHairBase = (config, themes) => {
+  const group = SVG.Group();
+
+  const edges = getEdges(config);
+  const midpoints = getMidpoints(config);
+
+  group.add(
+    SVG.Path()
+      .move(edges.left, midpoints.y)
+      .line(edges.left, midpoints.y - config.hair.curvature * config.head.height / 4)
+      .quadratic(
+        edges.left - config.hair.puffiness,
+        edges.top - config.hair.height,
+        midpoints.x,
+        edges.top - config.hair.height
+      )
+      .quadratic(
+        edges.right + config.hair.puffiness,
+        edges.top - config.hair.height,
+        edges.right,
+        midpoints.y - config.hair.curvature * config.head.height / 4
+      )
+      .line(edges.right, midpoints.y)
+      .theme(themes.outlined)
+      .fill(config.colors.hair)
+  );
+
+  return group;
+};
+
+const generateBeard = (config, themes) => {
+  if (!config.beard.present && !config.moustache.present) return null;
+
+  const group = SVG.Group();
+  const { beard, moustache } = config;
+
+  const edges = getEdges(config);
+  const midpoints = getMidpoints(config);
+
+  const bottom = SVG.Path()
+    .move(edges.left, midpoints.y)
+    .line(edges.left, midpoints.y + beard.squareness)
+    .quadratic(
+      edges.left - beard.thickness.bottom,
+      edges.bottom + beard.thickness.bottom,
+      midpoints.x,
+      edges.bottom + beard.thickness.bottom,
+    )
+    .quadratic(
+      edges.right + beard.thickness.bottom,
+      edges.bottom + beard.thickness.bottom,
+      edges.right,
+      midpoints.y + beard.squareness
+    )
+    .line(edges.right, midpoints.y)
+    .quadratic(
+      edges.right - beard.thickness.top,
+      edges.bottom - beard.thickness.top,
+      midpoints.x,
+      edges.bottom - beard.thickness.top,
+    )
+    .quadratic(
+      edges.left + beard.thickness.top,
+      edges.bottom - beard.thickness.top,
+      edges.left,
+      midpoints.y,
+    )
+    .theme(themes.outlined)
+    .fill(config.colors.hair);
+
+  const top = SVG.Path()
+    .move(midpoints.x, midpoints.y + config.head.height / 4 - (moustache.distance + moustache.thickness))
+    .theme(themes.outlined)
+    .fill(config.colors.hair);
+
+  if (moustache.handlebars) {
+    top.quadratic(
+        midpoints.x - config.mouth.width / 2 - (moustache.distance + moustache.thickness),
+        midpoints.y + config.head.height / 4 - (moustache.distance + moustache.thickness),
+        midpoints.x - config.mouth.width / 2 - (moustache.distance + moustache.thickness),
+        midpoints.y + config.head.height / 4,
+      )
+      .line(
+        midpoints.x - config.mouth.width / 2 - (moustache.distance + moustache.thickness),
+        edges.bottom - beard.thickness.top,
+      )
+      .line(
+        midpoints.x - config.mouth.width / 2 - moustache.distance,
+        edges.bottom - beard.thickness.top + 1,
+      )
+      .line(
+        midpoints.x - config.mouth.width / 2 - moustache.distance,
+        midpoints.y + config.head.height / 4,
+      )
+      .quadratic(
+        midpoints.x - config.mouth.width / 2 - moustache.distance,
+        midpoints.y + config.head.height / 4 - moustache.distance,
+        midpoints.x,
+        midpoints.y + config.head.height / 4 - moustache.distance,
+      )
+      .quadratic(
+        midpoints.x + config.mouth.width / 2 + moustache.distance,
+        midpoints.y + config.head.height / 4 - moustache.distance,
+        midpoints.x + config.mouth.width / 2 + moustache.distance,
+        midpoints.y + config.head.height / 4,
+      )
+      .line(
+        midpoints.x + config.mouth.width / 2 + moustache.distance,
+        edges.bottom - beard.thickness.top + 1,
+      )
+      .line(
+        midpoints.x + config.mouth.width / 2 + (moustache.distance + moustache.thickness),
+        edges.bottom - beard.thickness.top,
+      )
+      .line(
+        midpoints.x + config.mouth.width / 2 + (moustache.distance + moustache.thickness),
+        midpoints.y + config.head.height / 4,
+      )
+      .quadratic(
+        midpoints.x + config.mouth.width / 2 + (moustache.distance + moustache.thickness),
+        midpoints.y + config.head.height / 4 - (moustache.distance + moustache.thickness),
+        midpoints.x,
+        midpoints.y + config.head.height / 4 - (moustache.distance + moustache.thickness),
+      );
+  } else {
+
+  }
+
+  const mask = SVG.Mask().add(top.copy().fill('white'));
+  const bottomCopy = bottom.copy().attr('stroke-width', 50);
+
+  group.add(mask);
+  bottomCopy.fill(config.colors.hair).stroke(config.colors.hair).mask(mask);
+
+  if (config.moustache.present) group.add(top);
+  if (config.beard.present) group.add(bottom);
+  if (config.moustache.present && config.beard.present) group.add(bottomCopy);
+
+  return group;
+};
+
 class PlayerCard {
   constructor(config = {}) {
     this.rarity = (CONFIG.RARITY.LABELS.includes(config.rarity)) ?
@@ -125,12 +324,109 @@ class PlayerCard {
   }
 
   generateSvg() {
-    const svg = new SVG(1000, 1000);
+    const hairHeight = Random.float(2, 12.5);
+    const hairCurvature = Random.float(1, 2);
+    const hairPuffiness = Random.float(0, hairCurvature * hairHeight / 4);
 
-    const group = SVG.Group(null, { thingProp: 575, });
-    group.add(SVG.Circle(10, 10, 4));
+    const beardSquareness = Random.triangular(0, 20, 5);
 
-    svg.add(group);
+    const config = {
+      svg: {
+        width: 100,
+        height: 100,
+      },
+      colors: {
+        skin: SVG.hsl(35, 60, Random.int(25, 75)),
+        hair: SVG.hsl(37, 100, Random.int(10, 80)),
+      },
+      head: {
+        width: Random.int(40, 45),
+        height: Random.int(50, 55),
+      },
+      hair: {
+        height: hairHeight,
+        puffiness: hairPuffiness,
+        curvature: hairCurvature,
+      },
+      mouth: {
+        width: Random.int(7, 10),
+        curvature: Random.float(-2.5, 2.5),
+      },
+      beard: {
+        present: Random.random() > 0.5,
+        squareness : beardSquareness,
+        thickness: {
+          top: Random.float(1, 10),
+          bottom: (20 - beardSquareness) / 20 * Random.triangular(2, 20, 3),
+        }
+      },
+      moustache: {
+        present: Random.random() > 0.5,
+        thickness: Random.float(4, 6),
+        distance: Random.float(3.5, 6),
+        handlebars: Random.random() > 0,
+      }
+    };
+
+    console.log(config);
+
+    const svg = new SVG(config.svg.width, config.svg.height);
+
+    this.image = config;
+
+    const themes = {
+      outlined: SVG.Theme({
+        fill: 'transparent',
+        stroke: 'black',
+        'stroke-width': 15,
+        'stroke-linecap': 'round',
+        'vector-effect': 'non-scaling-stroke',
+      })
+    };
+
+    const groups = {
+      head: SVG.Group(),
+    };
+
+    // groups.head.add(
+    //   SVG.Path()
+    //     .move(30, 50)
+    //     .line(30, 35)
+    //     .quadratic(30, 20, 50, 20)
+    //     .quadratic(70, 20, 70, 35)
+    //     .line(70, 50)
+    //     .theme(themes.outlined)
+    //     .fill(config.colors.skin)
+    // );
+    // groups.head.add(
+    //   SVG.Path()
+    //     .move(30, 50)
+    //     .quadratic(30, 70, 50, 70)
+    //     .quadratic(70, 70, 70, 50)
+    //     .theme(themes.outlined)
+    //     .fill(config.colors.skin)
+    // );
+    // groups.head.add(
+    //   SVG.Path()
+    //     .move(46, 59)
+    //     .quadratic(50, 60, 54, 59)
+    //     .theme(themes.outlined)
+    // );
+    // groups.head.add(
+    //   SVG.Path()
+    //     .move(47, 45)
+    //     .line(47, 50)
+    //     .quadratic(47, 51, 48, 51)
+    //     .line(52, 51)
+    //     .quadratic(53, 51, 53, 50)
+    //     .theme(themes.outlined)
+    // );
+
+    groups.head.add(generateHairBase(config, themes));
+    groups.head.add(generateHeadShape(config, themes));
+    groups.head.add(generateBeard(config, themes));
+
+    svg.add(groups.head);
 
     return svg.render();
   }
